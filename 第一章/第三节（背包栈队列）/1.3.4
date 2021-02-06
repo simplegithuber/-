@@ -1,0 +1,113 @@
+#include <iostream>
+#include <string>
+#include <fstream> 
+using namespace std;
+
+template <class T>
+struct Node {
+	T data;
+	Node<T>* next;
+	Node() {
+		next = NULL;
+	}
+	Node(T data1, Node<T>* lnext) :data(data1), next(lnext) {	}
+};
+
+template <class T>
+class Stack {
+protected:
+	Node<T>* top;
+	int n;         //  链式栈中的元素数目
+public:
+	Stack() {
+		top = NULL;
+		n = 0;
+	}
+	bool empty() {
+		if (top == NULL)
+			return 1;
+		else
+			return 0;
+	}
+	void push(T c) {
+		Node<T>* f = new Node<T>(c, top);
+		top = f;
+		n++;
+	}
+	T pop() {
+		T c;
+		Node<T>* p = top;
+		if (!empty()) {
+			c = p->data;
+			top = top->next;
+			delete p;
+			n--;
+			return c;
+		}
+	}
+	T getelem() {
+		if (!this->empty())
+			return top->data;
+		else {
+			cout << "此栈为空栈！" << endl;
+			return 0;
+		}
+	}
+
+	bool Judge_Suit() {
+		Stack s1 = *this;
+		Stack s2;
+		T a;
+		while (!s1.empty()) {
+			a = s1.pop();
+			if (a == '}')    s2.push('}');
+			if (a == ')')    s2.push(')');
+			if (a == ']')    s2.push(']');
+			if (a == '{') {
+				if (s2.getelem() != '}')
+					return false;
+				if (s2.empty())
+					return false;
+				if (s2.getelem() == '}')
+					s2.pop();
+			}
+			else if (a == '(') {
+				if (s2.getelem() != ')')
+					return false;
+				if (s2.empty())
+					return false;
+				if (s2.getelem() == ')')
+					s2.pop();
+			}
+			else if (a == '[') {
+				if (s2.getelem() != ']')
+					return false;
+				if (s2.empty())
+					return false;
+				if (s2.getelem() == ']')
+					s2.pop();
+			}
+		}
+		return true;
+	}
+};
+
+	int main() {
+		char ch;
+		Stack<char> s;
+		ifstream texfile;
+		texfile.open("d:\\cs.txt",ios::in);
+		if (!texfile) {
+			cerr << "ceshi.txt open error!" << endl;
+			exit(1);
+		}
+		while (!texfile.eof()) {
+			texfile >> ch;
+			s.push(ch);
+		}
+		if (s.Judge_Suit())
+			cout << "括号匹配成功!" << endl;
+		else
+			cout << "匹配失败！" << endl;
+		return 0;
+	}
