@@ -1,0 +1,149 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+template <class T>
+struct Node {
+	T data;
+	Node<T>* next;
+	Node() {
+		next = NULL;
+	}
+	Node(T data1, Node<T>* lnext) :data(data1), next(lnext) {	}
+};
+
+template <class T>
+class Stack {
+protected:
+	Node<T>* top;
+	int n;         //  链式栈中的元素数目
+public:
+	Stack() {
+		top = NULL;
+		n = 0;
+	}
+	~Stack() {
+		Node<T>* f = top;
+		while (top != NULL) {
+			top = top->next;
+			delete f;
+			f = top;
+		}
+	}
+	int size() {
+		return n;
+	}
+	bool empty() {
+		if (top == NULL)
+			return 1;
+		else
+			return 0;
+	}
+	void push(T c) {
+		Node<T>* f = new Node<T>(c, top);
+		top = f;
+		n++;
+	}
+	T pop() {
+		T c;
+		Node<T>* p = top;
+		if (!empty()) {
+			c = p->data;
+			top = top->next;
+			delete p;
+			n--;
+			return c;
+		}
+	}
+	T getelem() {
+		if (!this->empty())
+			return top->data;
+		else {
+			cout << "此栈为空栈！" << endl;
+			return 0;
+		}
+	}
+	//  如果函数返回值不是引用，在后面运算符重载函数中，传参就会出问题
+	Stack& convert_intopost(string st, Stack& s1) {
+		s1 = *this;
+		Stack s2 = *this;
+		s2.push('#');           //  '#'象征最小优先级，边界作用
+		char ch;
+		for (char c : st) {
+			if (c >= '0' && c <= '9')
+				s1.push(c);
+			else {
+				if (c == '(')
+					s2.push(c);
+				else if (c == '+' || c == '-') {
+					while (!(s2.getelem() == '(' || s2.getelem() == '#')) {
+						ch = s2.pop();
+						s1.push(ch);
+					}
+					s2.push(c);
+				}
+				else if (c == '*' || c == '/') {
+					while (!(s2.getelem() == '+' || s2.getelem() == '-' || s2.getelem() == '#' || s2.getelem() == '(')) {
+						ch = s2.pop();
+						s1.push(ch);
+					}
+					s2.push(c);
+				}
+				else if (c == ')') {
+					while (s2.getelem() != '(') {
+						ch = s2.pop();
+						s1.push(ch);
+					}
+					s2.pop();
+				}
+				else;
+			}
+		}
+		if (!s2.empty()) {
+			ch = s2.pop();
+			while (ch != '#') {
+				s1.push(ch);
+				ch = s2.pop();
+			}
+		}
+		return s1;
+	}
+
+	/*Stack(Stack& s) {
+		n = s.n;
+		top = NULL;
+		while (!s.empty())
+			this->push(s.pop());
+	}
+	*/
+	Stack& operator = (Stack& s) { //  如果形参加引用就会出现问题，如果返回值是一个临时对象（返回值不是引用），创建之后
+		n = s.n;                   //  就会被析构掉，所以不能用引用。
+		while (!s.empty())
+			this->push(s.pop());
+		return *this;
+	}
+};
+int main() {
+	Stack<char> st1, st2, s1;
+	string ss1;
+//	int N = 0;
+	int i = 0;
+	cout << "请输入中缀表达式：" << endl;
+	cin >> ss1;
+	cout << "此时的后缀表达式为：" << endl;
+	/*
+	Stack *st2;
+	st2 = new Stack<char>;   因为convert_intopost函数返回时创建了一个临时对象
+	*st2 = *st1.convert_intopost(s1); 创建完之后会析构掉，所以如果直接把指针指向那个返回值就会出错
+	*/
+	st2 = st1.convert_intopost(ss1,s1);
+//	char* ch = new char(N);
+	char ch[100];
+	while (!st2.empty()) 
+		ch[i++] = st2.pop();
+	for (int j = i - 1; j >= 0; j--)
+		cout << ch[j];
+	cout << endl;
+//	delete[]ch;
+	return 0;
+}
