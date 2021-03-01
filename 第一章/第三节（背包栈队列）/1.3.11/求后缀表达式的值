@@ -1,0 +1,130 @@
+#include <iostream>
+#include <string>
+#include <cctype>
+using namespace std;
+
+template <class T>
+struct Node {
+	T data;
+	Node<T>* next;
+	Node() {
+		next = NULL;
+	}
+	Node(T data1, Node<T>* lnext) :data(data1), next(lnext) {	}
+};
+
+template <class T>
+class Stack {
+protected:
+	Node<T>* top;
+	int n;         //  链式栈中的元素数目
+public:
+	Stack() {
+		top = NULL;
+		n = 0;
+	}
+	~Stack() {
+		Node<T>* f = top;
+		while (top != NULL) {
+			top = top->next;
+			delete f;
+			f = top;
+		}
+	}
+	int size() {
+		return n;
+	}
+	bool empty() {
+		if (top == NULL)
+			return 1;
+		else
+			return 0;
+	}
+	void push(T c) {
+		Node<T>* f = new Node<T>(c, top);
+		top = f;
+		n++;
+	}
+	T pop() {
+		T c;
+		Node<T>* p = top;
+		if (!empty()) {
+			c = p->data;
+			top = top->next;
+			delete p;
+			n--;
+			return c;
+		}
+	}
+	T getelem() {
+		if (!this->empty())
+			return top->data;
+		else {
+			cout << "此栈为空栈！" << endl;
+			return 0;
+		}
+	}
+	//  如果函数返回值不是引用，在后面运算符重载函数中，传参就会出问题
+	double getvalue(string st) {
+		Stack s1;
+		for (auto& c : st) {
+			if (c >= '0' && c <= '9')
+				s1.push(c);
+			else if (c == '+') {
+				double d1, d2;
+				d2 = static_cast<double>(s1.pop()-'0');
+				d1 = static_cast<double>(s1.pop()-'0');
+				char ch = static_cast<char>(d1 + d2);
+				s1.push(ch);
+			}
+			else if (c == '-') {
+				double d1, d2;
+				d2 = static_cast<double>(s1.pop() - '0');
+				d1 = static_cast<double>(s1.pop() - '0');
+				char ch = static_cast<char>(d1 - d2);
+				s1.push(ch);
+			}
+			else if (c == '*') {
+				double d1, d2;
+				d2 = static_cast<double>(s1.pop() - '0');
+				d1 = static_cast<double>(s1.pop() - '0');
+				char ch = static_cast<char>(d1 * d2);
+				s1.push(ch);
+			}
+			else if (c == '/') {
+				double d1, d2;
+				d2 = static_cast<double>(s1.pop() - '0');
+				d1 = static_cast<double>(s1.pop() - '0');
+				char ch = static_cast<char>(d1 / d2);
+				s1.push(ch);
+			}
+			else
+				continue;
+		}
+			if (!s1.empty())
+				return static_cast<double>(s1.pop()); 
+	}
+
+	Stack(Stack& s) {
+		n = s.n;
+		top = NULL;
+		while (!s.empty())
+			this->push(s.pop());
+	}
+
+	Stack& operator = (Stack& s) { //  如果形参无引用就会出现问题，如果返回值是一个临时对象（返回值不是引用）
+		n = s.n;                   //  就会被析构掉，所以不能用引用。
+		while (!s.empty())
+			this->push(s.pop());
+		return *this;
+	}
+};
+int main() {
+	string s1, s2;
+	Stack<char> st1;
+	cout << "请你输入需求值的后缀表达式" << endl;
+	while (cin >> s2)
+		s1 += s2;
+	cout << "此后缀表达式的值为：" << endl;
+	cout << st1.getvalue(s1) << endl;
+}
