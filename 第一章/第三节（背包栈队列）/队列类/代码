@@ -1,0 +1,171 @@
+#include <iostream>
+using namespace std;
+//  链式结点 
+template <class T>
+struct Node{
+	T data;
+	Node<T>* next;
+	Node():next(NULL) {	}
+	Node(T a, Node<T>* lnext):data(a), next(lnext) { }
+};
+/*
+// 队列 
+template <class T>
+class Queue{
+protected:
+    int front, rear;  //  队头和队尾指针
+    int maxlength;    //  队列数组的储存空间 
+	T *elem;
+	int length;       //  队列元素数目
+public:
+    Queue(int n):front(0), rear(0), maxlength(n), length(0) { 
+	    elem = new T(maxlength);
+	}
+	~Queue(){
+		delete[]elem;
+	}
+	int size(){
+	    return length;
+	}
+    bool isempty(){
+    	if(front == rear)
+    	    return 1;
+    	else 
+    	    return 0;
+	}
+	bool isfull(){
+		if((rear+1)%maxlength == front)
+		    return 1;
+		else
+		    return 0;
+	}
+    bool enqueue(T a){
+    	if(!isfull()){
+    	    elem[rear++] = a;
+    	    length++;
+    	    return 1;
+    	}
+    	else {
+    		cout << "已超出最大队列容量" << endl;
+    		return 0;
+		}
+	}
+	T dequeue(T& c){
+		if(!isempty()){
+		    c = elem[front];
+			front = (front+1)%maxlength;
+			length--;
+			return 1;
+		}
+		else
+		    return 0;
+	}
+	void put_elems(){
+		if(!isempty()){
+		    for(int i = front; i != rear; i = (i+1)%maxlength)
+		        cout << elem[i] << endl;
+		}
+		else
+		    cout << "此时队列为空" << endl;
+	}
+	Queue(Queue& q){
+		front = q.front;
+		rear = q.rear;
+		maxlength = q.maxlength;
+		elem = new T(maxlength);
+		for(int i = front; i != rear; i = (i+1)%maxlength)
+		    elem[i] = q.elem[i];
+	}
+};
+*/
+//  链式队列 
+template <class T>
+class ListQueue{
+protected:
+	Node<T>* front, *rear;
+	int length;
+public:
+	ListQueue(){
+		length = 0;
+		front = rear = new Node<T>; // 头结点 
+	}
+	~ListQueue(){
+		T i;
+		while(!isempty())
+			this->dequeue(i);
+		delete front;
+	}
+	int size(){
+		return length;
+	}
+	bool isempty(){
+		if(front == rear)
+		    return 1;
+		else 
+		    return 0;
+	}
+	void enqueue(T a){
+		Node<T>* f = new Node<T>(a,NULL);
+		rear->next = f;
+		rear = f;
+		length++;
+	}
+	void dequeue(T& c){
+		if(!isempty()){
+			Node<T>* f = front->next;
+			front->next = f->next;
+			if(f == rear)
+			    rear = front;
+			c = f->data;
+			length--;
+			delete f;
+		}
+	} 
+	void put_elem(){
+		if(!isempty()){
+		    Node<T>* f = front->next;
+		    while(f != NULL){
+		    	cout << f->data << endl;
+		    	f = f->next;
+			}
+		}
+		else
+		    cout << "此队列为空队列！" << endl;
+	}
+	
+	ListQueue(ListQueue& lq){
+		front = rear = new Node<T>;     //  这里的这个很重要，因为这个拷贝构造函数 
+		length = lq.length;             //  也是构造函数，执行拷贝构造函数就不会执行构造函数 
+		if(!lq.isempty()){              //  所以要对类的成员进行和构造函数一样的初始化 
+		    Node<T>* f = lq.front->next;
+		    while(f != NULL){
+		    	this->enqueue(f->data); 
+		    	f = f->next;
+			}
+	    }
+    }
+    
+    /* 
+    ListQueue& operator = (ListQueue& lq){   //  这里形参的引用不能去掉，因为如果不是引用的话，就会创建一个临时对象 
+    	length = lq.length;                  //  然后再进行对象赋值，这里的赋值运算符重载未完成，所以析构临时对象时就会出问题 
+		if(!lq.isempty()){
+		    Node<T>* f = lq.front->next;
+		    while(f != NULL){
+		    	this->enqueue(f->data); 
+		    	f = f->next;
+			}
+	    }
+	    return *this;
+	} 
+	*/
+};
+
+int main(){
+	ListQueue<char> q1;
+	char ch;
+	while(cin >> ch)
+		q1.enqueue(ch);
+	ListQueue<char> q2(q1);
+	q2.put_elem();
+	return 0;
+}
