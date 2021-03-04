@@ -1,0 +1,222 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+template <class T>
+struct Node{
+	T data;
+	Node<T>* next;
+	Node():next(NULL) { }
+	Node(T a, Node<T>* lnext):data(a), next(lnext) { }
+};
+
+template <class T>
+class List{
+//  顺序表 
+/*
+protected:
+	int maxlength;    //  顺序表的最大容量 
+	int length;       //  顺序表中的实际数据容量 
+	T* elem;    
+public:
+    List(int ml, int lt):maxlength(ml), length(lt), elem(new T[maxlength]) { }
+    ~List(){
+    	delete elem;
+	}
+	List(List& li){
+		maxlength = li.maxlength;
+		length = li.length;
+		elem = new T[maxlength];
+		for(int i = 0; i < length; i++)
+		    elem[i] = li.elem[i];
+	}
+	bool isempty(){
+		if(length == 0)
+		    return 1;
+		else
+		    return 0;
+	}
+	bool isfull(){
+		if(length == maxlength)
+		    return 1;
+		else 
+		    return 0;
+	}
+	T getelem(){
+		if(!isempty())
+		    return elem[length-1];
+	}
+	void insert(T e){
+		if(!isfull())
+		    elem[length++] = e;
+	}
+	int traverse(T e){
+		if(!isempty()){
+			for(int i = 0; i < length; i++){
+				if(e == elem[i])
+				    return i;
+			}
+			cout << "未找到指定的元素" << endl;
+			return -1;
+		}
+	}
+	bool delete_elem(T e1){
+		if(!isempty()){
+		    int i = traverse(e1);
+		    if(i == -1){
+		    	cout << "此时顺序表为空，删除失败！" << endl;
+		    	return 0;
+		    }
+		    else{
+		        for(int j = i+1; j < length; j++)
+				    elem[j-1] = elem[j];
+				    length--;
+		    }
+		} 
+		else
+			cout << "此时顺序表为空，删除失败！" << endl;
+	}
+	void put(){
+		for(int i = 0; i < length; i++)
+		    cout << elem[i] << " ";
+		cout << endl; 
+	}
+*/
+//  单链表
+protected:
+    int length;
+	Node<T>* head;
+public:
+	List():length(0),head(new Node<T>) { }
+	~List(){
+		Node<T>* p = head;
+		Node<T>* q = p->next;
+		while(q != NULL){
+			p->next = q->next;
+			delete q;
+			if(p != NULL)
+			    q = p->next;
+			else
+			    break;
+		}
+		delete head;
+	}
+	List(List& li){
+		length = li.length;
+		head = new Node<T>;
+		Node<T>* p = li.head->next;
+		while(p != NULL){
+			insertelem(p->data);
+			p = p->next;
+		}
+	}
+	bool isempty(){
+		if(length == 0)
+		    return 1;
+		else
+		    return 0;
+	}
+	int getlength(){
+		return length;
+	}
+	void creatlist(T t[], int n){
+		for(int i = 0; i < n; i++){
+			Node<T>* p = new Node<T>(t[i], head->next);
+			head->next = p;
+			length++;
+		}
+	}
+	void insertelem(T e){
+		Node<T>* p = new Node<T>(e, head->next);
+		head->next = p;
+	}
+	bool deleteelem(T e){
+		int n = 0;
+		Node<T>* p = head;
+		Node<T>* q = p->next;
+		while(q != NULL){
+			if(q->data == e){
+				p->next = q->next;
+				delete q;
+				n = 1;
+				length--;
+				if(p != NULL)
+				    q = p->next;
+				else
+				    break;
+			}
+			else{
+				p = p->next;
+				q = q->next;
+			}
+		}
+		if(n == 1){
+			cout << "删除成功！" << endl;
+			return 1;
+		}
+		else{
+			cout << "未找到要删除的元素，删除失败！" << endl;
+			return 0;
+		}
+	}
+	void iv_put(){  // 倒序输出 
+		Node<T>* p = head->next;
+		while(p != NULL){
+			cout << p->data << " ";
+			p = p->next;
+		}
+		cout << endl;
+	}
+	void po_put(){  //  正序输出 
+	    T a[length];
+	    int i = 0;
+		Node<T>* p = head->next;
+		while(p != NULL){
+			a[i++] = p->data;
+			p = p->next;
+		}
+		for(int i = length - 1; i >= 0; i--)
+		    cout << a[i] << " ";
+		cout << endl; 
+	}
+//以下为实现的函数代码！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+//！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+//！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+	void deletee(int k){  //删除链表中第k个元素 
+		Node<T>* p = head;
+		Node<T>* q = p->next;
+		for(int i = 1; i < k; i++){
+			if(q != NULL){
+				p = p->next;
+				q = q->next;
+			}
+			else
+			    break;
+		}
+		if(q != NULL){
+			p->next = q->next;
+				delete q;
+				cout << "删除成功！" << endl;
+		}
+		else{
+		    cout << "该链表没有第k个元素" << endl;
+		}
+	}
+};
+
+int main(){
+	List<int> li1;
+	int a[5] = {5,4,6,7,8};
+	li1.creatlist(a,5);
+	List<int> li2(li1);
+/*	li1.po_put();
+	li1.iv_put();*/
+	li2.po_put();
+	li2.iv_put();
+	cout << "输入要删除元素的序号：" << endl;
+	int k;
+	cin >> k;
+	li2.deletee(k);
+	li2.iv_put();
+	return 0;
+}
