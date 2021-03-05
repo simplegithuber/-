@@ -140,10 +140,10 @@ public:
 				delete q;
 				n = 1;
 				length--;
-				if(p != NULL)
+				//if(p != NULL)
 				    q = p->next;
-				else
-				    break;
+				//else
+				//    break;  搞不懂当时自己为啥要加这个判定条件.....
 			}
 			else{
 				p = p->next;
