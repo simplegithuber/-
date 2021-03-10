@@ -1,0 +1,178 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+template <class T>
+struct dNode {
+	T data;
+	dNode<T>* prior;   //  结点的前指针
+	dNode<T>* next;   //  结点的后指针 
+	dNode() :prior(NULL), next(NULL) { }
+	dNode(T a, dNode* f_next, dNode* r_next) :data(a), prior(f_next), next(r_next) { }
+};
+
+template <class T>
+class Double_List {
+protected:
+	dNode<T>* head;
+	int length;
+public:
+	Double_List() :head(new dNode<T>), length(0) { }
+	~Double_List() {
+		dNode<T>* p = head->next;
+		while (p != NULL) {
+			head->next = p->next;
+			delete p;
+			p = head->next;
+		}
+		delete head;
+	}
+	/*~Double_List() {           //  这个析构函数也可
+        dNode<T>* p = head;
+        dNode<T>* p = head->next;
+        while(q != NULL){
+        	delete p;
+        	p = q;
+        	q = q->next;
+		}
+		delete p;
+	*/
+	Double_List(Double_List& dl) {
+
+	}
+	void insertnode_head(T e) {  //  在表头插入结点 
+		dNode<T>* p = new dNode<T>(e, head, head->next);
+		if(head->next != NULL)
+		    head->next->prior = p;
+		head->next = p;
+		length++;
+	}
+	void insertnode_tail(T e) {  // 在表尾插入结点 
+		dNode<T>* p = head;
+		while (p->next != NULL)
+			p = p->next;
+		dNode<T>* q = new dNode<T>(e, p, NULL);
+		p->next = q;
+		length++;
+	}
+	void creatdoulist(T s[], int n) {
+		for (int i = 0; i < n; i++)
+			insertnode_head(s[i]);
+	}
+	bool isempty() {
+		return (length == 0);
+	}
+	void deletenode_head() {  //  在表头删除结点
+		if (head->next != NULL) {
+			dNode<T>* p = head->next;
+			head->next = p->next;
+			if (p->next != NULL)
+				p->next->prior = head;
+			delete p;
+			length--;
+		}
+	}
+	void deletenode_tail() {  //  在表尾删除结点 
+		dNode<T>* p = head;
+		dNode<T>* q = head->next;
+		while (q->next != NULL) {
+			p = p->next;
+			q = q->next;
+		}
+		p->next = NULL;
+		delete q;
+		length--;
+	}
+	void insert_node_front(T e, T e0) {   //  在指定结点e的前面插入结点e0
+		int n = 0;
+		dNode<T>* p = head->next;
+		dNode<T>* q = new dNode<T>(e0, NULL, NULL);
+		while (p != NULL) {
+			if (p->data == e) {
+				p->prior->next = q;
+				q->next = p;
+				q->prior = p->prior;
+				p->prior = q;
+				length++;
+				n = 1;
+				break;
+			}
+			p = p->next;
+			n = 2;
+		}
+		if (n == 1)
+			cout << "插入成功！" << endl;
+		else if (n == 2)
+			cout << "未找到指定节点！" << endl;
+		else
+			cout << "该链表为空链表！" << endl;
+
+	}
+	void insert_node_rear(T e, T e0) {         //  在指定结点e的后面插入结点e0
+		int n = 0;
+		dNode<T>* p = head->next;
+		dNode<T>* q = new dNode<T>(e0, NULL, NULL);
+		while (p != NULL) {
+			if (p->data == e) {
+				p->next->prior = q;
+				q->prior = p;
+				q->next = p->next;
+				p->next = q;
+				length++;
+				n = 1;
+				break;
+			}
+			p = p->next;
+			n = 2;
+		}
+		if (n == 1)
+			cout << "插入成功！" << endl;
+		else if (n == 2)
+			cout << "未找到指定节点！" << endl;
+		else
+			cout << "该链表为空链表！" << endl;
+	}
+	void deletenode_appoin(T e) {  //  删除指定元素结点 
+		int n = 0;
+		dNode<T>* p = head->next;
+		while (p != NULL) {
+			if (p->data == e) {
+				p->prior->next = p->next;
+				p->next->prior = p->prior;
+				delete p;
+				n = 1;
+				length--;
+				break;
+			}
+			p = p->next;
+		}
+		if (n == 1)
+			cout << "删除结点成功！" << endl;
+		else
+			cout << "未找到该结点，删除结点失败！" << endl;
+	}
+	void put() {
+		dNode<T>* p = head->next;
+		while (p != NULL) {
+			cout << p->data << " ";
+			p = p->next;
+		}
+		cout << endl;
+	}
+};
+int main() {
+	Double_List<int> li1;
+	int ab[5]{ 10,5,65,12,66 };
+	li1.creatdoulist(ab, 5);
+//  表头插入结点	li1.insertnode_head(11);  
+//  表头删除结点	li1.deletenode_head();
+//  指定结点前插入结点	li1.insert_node_front(5, 99);
+	li1.put();
+//  表尾插入结点	li1.insertnode_tail(12);
+//  表尾删除结点	li1.deletenode_tail();
+//  指定结点后插入结点	li1.insert_node_rear(12, 100);
+//  删除指定结点	li1.deletenode_appoin(65);
+	li1.put();
+	return 0;
+}
+//  ps：因为输出函数和插入函数写的比较凌乱，最终输出可能会倒序，不想改了......
